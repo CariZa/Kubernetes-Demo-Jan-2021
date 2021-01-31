@@ -23,18 +23,17 @@ jobs:
         service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
         export_default_credentials: true
 
-    - name: Use gcloud CLI
-      run: gcloud info
-
     # RELEASE
 
     - name: Create VPC
       # if: startsWith(github.ref, 'refs/tags/release-')
       run: gcloud compute networks create demo-vpc-k8s --quiet
+      continue-on-error: true
 
     - name: Create Cluster on VPC
       # if: startsWith(github.ref, 'refs/tags/release-')
       run: gcloud container clusters create gcp-demo-cluster --num-nodes 2 --network demo-vpc-k8s --region=europe-west4-a --scopes=storage-rw,compute-ro --quiet --quiet
+      continue-on-error: true
 
     # CLEANUP/DELETE
 
