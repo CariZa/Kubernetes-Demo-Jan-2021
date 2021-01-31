@@ -12,9 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # strategy:
-      # matrix:
-        # node-version: [10.x]
+
     steps:
     - uses: actions/checkout@v2
 
@@ -36,7 +34,7 @@ jobs:
 
     - name: Create Cluster on VPC
       # if: startsWith(github.ref, 'refs/tags/release-')
-      run: gcloud container clusters create gcp-demo-cluster --num-nodes 2 --network vpc-k8s --region=europe-west4-a --scopes=storage-rw,compute-ro --quiet --quiet
+      run: gcloud container clusters create gcp-demo-cluster --num-nodes 2 --network demo-vpc-k8s --region=europe-west4-a --scopes=storage-rw,compute-ro --quiet --quiet
 
     # CLEANUP/DELETE
 
