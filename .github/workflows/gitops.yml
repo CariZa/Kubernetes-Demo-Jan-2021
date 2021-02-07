@@ -42,11 +42,15 @@ jobs:
       
     - name: Applying general kubernetes yaml 
       # if: startsWith(github.ref, 'refs/tags/release-')
-      run: kubectl apply -f kubernetes/general
+      run: kubectl apply -Rf kubernetes/general
+
+    - name: Hack to fix some issues with the helm chart
+      # if: startsWith(github.ref, 'refs/tags/release-')
+      run: kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml && kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml && kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml && kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml && kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml && kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
 
     - name: Applying helm kubernetes yaml
       # if: startsWith(github.ref, 'refs/tags/release-')
-      run: kubectl apply -R -f kubernetes/helm
+      run: kubectl apply -Rf kubernetes/helm
 
     # CLEANUP/DELETE
 

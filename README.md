@@ -78,7 +78,21 @@ Helm templates are a great way to pull down yaml files to apply to your kubernet
 
 https://helm.sh/docs/helm/helm_template/
 
+Prometheus chart:
+
+https://github.com/prometheus-community/helm-charts
+
+Check compatibility:
+
+https://github.com/prometheus-operator/kube-prometheus#compatibility
+
+Check kubernetes version by running:
+
+    $ kubectl version
+
 I'm using the prometheus templates, here are the steps I took to get the templates I'm using:
+
+    $ helm repo add stable https://charts.helm.sh/stable
 
     $ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
@@ -88,13 +102,39 @@ You can list helm repos:
 
     $ helm repo list
 
+A gotcha - had to kind of do this - there's been some chages to the chart that requires additional configuraiton to get it working:
+
+https://github.com/helm/charts/blob/master/stable/prometheus-operator/README.md#helm-fails-to-create-crds
+
+https://github.com/prometheus-community/helm-charts/commit/3ab7f9b04e1ab5abd6c0b35268368422436ae3a6#diff-258b94d83cfa8cddeb6d12648c7ef8b938ec80e9bb1c95ea40f28fbd3361caa0L8
+
+
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
+
 Retrieve prometheus yaml files:
 
     $ helm template monitoring --output-dir kubernetes/helm -n monitoring prometheus-community/kube-prometheus-stack \
     --set kubelet.serviceMonitor.https=true \
-    --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+    --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+    --set prometheusOperator.enabled=true \
+    --set prometheusOperator.tls.enabled=false
 
 Notice the "-n monitoring"? That's going to use the namespace we want to setup.
+
+Also - a head's up, this took me a few hours to figure out, this flag is pretty important:
+
+    --set prometheusOperator.tls.enabled=false
+
+Some things have changed in the chart and that causes issues with a tls-secret that never gets created, more info:
+
+https://github.com/prometheus-community/helm-charts/blob/63e0c0ef24c41a0849daf937c9db3995c16b52a5/charts/kube-prometheus-stack/templates/prometheus-operator/deployment.yaml#L118-L124
+
+https://github.com/prometheus-community/helm-charts/issues/418
 
 There is now these folders:
 
@@ -106,5 +146,30 @@ There is now these folders:
                 ./templates
                     ...
 
+## Port Forward Grafana
 
+View the grafana dashboard:
 
+    $ kubectl port-forward $(kubectl get pods --selector=app.kubernetes.io/name=grafana -n monitoring --output=jsonpath="{.items[0].metadata.name}") -n monitoring 3000
+
+Get kibana credentials:
+
+Base64 encrypted admin password
+
+    $ GRAFANA_USERNAME=$(echo $(kubectl get secret --namespace monitoring monitoring-grafana -o jsonpath="{.data.admin-user}") | base64 --decode)
+
+    $ GRAFANA_PASSWORD=$(echo $(kubectl get secret --namespace monitoring monitoring-grafana -o jsonpath="{.data.admin-password}") | base64 --decode)
+
+$ echo $GRAFANA_USERNAME
+$ echo $GRAFANA_PASSWORD
+
+You would then use:
+
+    username: admin
+    password: prom-operator
+
+View in browser:
+
+    $ kubectl port-forward $(kubectl get pods --selector=app.kubernetes.io/name=grafana -n monitoring --output=jsonpath="{.items[0].metadata.name}") -n monitoring 3000
+
+And visit: http://localhost:3000 in your browser

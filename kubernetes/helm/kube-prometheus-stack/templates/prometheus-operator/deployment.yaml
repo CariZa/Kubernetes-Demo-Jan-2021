@@ -36,28 +36,14 @@ spec:
             - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.45.0
             - --config-reloader-cpu=100m
             - --config-reloader-memory=50Mi
-            - --web.enable-tls=true
-            - --web.cert-file=/cert/cert
-            - --web.key-file=/cert/key
-            - --web.listen-address=:10250
-            - --web.tls-min-version=VersionTLS13
           ports:
-            - containerPort: 10250
-              name: https
+            - containerPort: 8080
+              name: http
           resources:
             {}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-          volumeMounts:
-            - name: tls-secret
-              mountPath: /cert
-              readOnly: true
-      volumes:
-        - name: tls-secret
-          secret:
-            defaultMode: 420
-            secretName: monitoring-kube-prometheus-admission
       securityContext:
         fsGroup: 65534
         runAsGroup: 65534
