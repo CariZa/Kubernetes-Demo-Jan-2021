@@ -1,0 +1,22 @@
+---
+# Source: kube-prometheus-stack/templates/exporters/kube-state-metrics/serviceMonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: monitoring-kube-prometheus-kube-state-metrics
+  namespace: monitoring
+  labels:
+    app: kube-prometheus-stack-kube-state-metrics
+    
+    chart: kube-prometheus-stack-13.5.0
+    release: "monitoring"
+    heritage: "Helm"
+spec:
+  jobLabel: app.kubernetes.io/name
+  endpoints:
+  - port: http
+    honorLabels: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/instance: "monitoring"

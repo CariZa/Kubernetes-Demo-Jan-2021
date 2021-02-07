@@ -1,0 +1,22 @@
+---
+# Source: kube-prometheus-stack/templates/prometheus-operator/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-kube-prometheus-operator
+  namespace: monitoring
+  labels:
+    app: kube-prometheus-stack-operator
+    
+    chart: kube-prometheus-stack-13.5.0
+    release: "monitoring"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: https
+    port: 443
+    targetPort: https
+  selector:
+    app: kube-prometheus-stack-operator
+    release: "monitoring"
+  type: "ClusterIP"
