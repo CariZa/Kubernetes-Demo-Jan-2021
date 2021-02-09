@@ -7,7 +7,7 @@ metadata:
   namespace: monitoring
   labels:
     app: kube-prometheus-stack-operator
-    
+
     chart: kube-prometheus-stack-13.5.0
     release: "monitoring"
     heritage: "Helm"
@@ -36,14 +36,28 @@ spec:
             - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.45.0
             - --config-reloader-cpu=100m
             - --config-reloader-memory=50Mi
+            - --web.enable-tls=true
+            - --web.cert-file=/cert/cert
+            - --web.key-file=/cert/key
+            - --web.listen-address=:10250
+            - --web.tls-min-version=VersionTLS13
           ports:
-            - containerPort: 8080
-              name: http
+            - containerPort: 10250
+              name: https
           resources:
             {}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tls-secret
+              mountPath: /cert
+              readOnly: true
+      volumes:
+        - name: tls-secret
+          secret:
+            defaultMode: 420
+            secretName: monitoring-kube-prometheus-admission
       securityContext:
         fsGroup: 65534
         runAsGroup: 65534

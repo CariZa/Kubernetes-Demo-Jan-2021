@@ -13,7 +13,15 @@ metadata:
     heritage: "Helm"
 spec:
   endpoints:
-  - port: http
+  - port: https
+    scheme: https
+    tlsConfig:
+      serverName: monitoring-kube-prometheus-operator
+      ca:
+        secret:
+          name: monitoring-kube-prometheus-admission
+          key: ca
+          optional: false
     honorLabels: true
   selector:
     matchLabels:

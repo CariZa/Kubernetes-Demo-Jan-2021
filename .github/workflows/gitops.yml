@@ -48,6 +48,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/release-')
       run: kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.45/bundle.yaml
 
+    - name: GKE fix for demo
+      if: startsWith(github.ref, 'refs/tags/release-')
+      run: kubectl delete -Rf kubernetes/helm/kube-prometheus-stack/templates/prometheus-operator/
+
     - name: Applying helm kubernetes yaml
       if: startsWith(github.ref, 'refs/tags/release-')
       run: kubectl apply -Rf kubernetes/helm
@@ -55,8 +59,6 @@ jobs:
     - name: Applying helm kubernetes yaml
       if: startsWith(github.ref, 'refs/tags/release-')
       run: kubectl delete -Rf kubernetes/helm/kube-prometheus-stack/templates/prometheus-operator/
-
-      
 
     # CLEANUP/DELETE
 

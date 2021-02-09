@@ -109,20 +109,18 @@ https://github.com/helm/charts/blob/master/stable/prometheus-operator/README.md#
 https://github.com/prometheus-community/helm-charts/commit/3ab7f9b04e1ab5abd6c0b35268368422436ae3a6#diff-258b94d83cfa8cddeb6d12648c7ef8b938ec80e9bb1c95ea40f28fbd3361caa0L8
 
 
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
-    kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/release-0.45/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
+    https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.45/bundle.yaml
 
 Retrieve prometheus yaml files:
 
     $ helm template monitoring --output-dir kubernetes/helm -n monitoring prometheus-community/kube-prometheus-stack \
     --set kubelet.serviceMonitor.https=true \
     --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
-    --set prometheusOperator.enabled=true \
-    --set prometheusOperator.tls.enabled=false
+    --set prometheusOperator.admissionWebhooks.enabled=false
+
+https://github.com/helm/charts/blob/master/stable/prometheus-operator/README.md#running-on-private-gke-clusters
+
+Note the "--set prometheusOperator.admissionWebhooks.enabled=false" is something to help with this GKE demo - this is not a recommended approach for production ready environments 
 
 Notice the "-n monitoring"? That's going to use the namespace we want to setup.
 
