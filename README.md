@@ -171,3 +171,12 @@ View in browser:
     $ kubectl port-forward $(kubectl get pods --selector=app.kubernetes.io/name=grafana -n monitoring --output=jsonpath="{.items[0].metadata.name}") -n monitoring 3000
 
 And visit: http://localhost:3000 in your browser
+
+
+### Connect to GCP cluster
+
+    $ export KUBECONFIG=$HOME/.kube/kubeconfig
+
+    $ gcloud container clusters list
+
+    $ gcloud container clusters get-credentials gcp-manual-demo-cluster --region=europe-west4-a

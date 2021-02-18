@@ -65,4 +65,3 @@ jobs:
     - name: Delete VPC
       if: startsWith(github.ref, 'refs/tags/delete-')
       run: gcloud compute networks delete demo-vpc-k8s --quiet
-
